@@ -642,7 +642,7 @@ const STEPS = ["Requirement", "Design", "Development", "Testing", "Deployment", 
 function Process() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.7", "end 0.3"] });
-  const dash = useTransform(scrollYProgress, [0, 1], [1, 0]);
+  const fill = useTransform(scrollYProgress, [0, 1], [0, 1]);
   return (
     <section id="process" className="relative border-t border-border px-6 py-32 md:px-12">
       <div className="mx-auto max-w-7xl">
@@ -652,7 +652,6 @@ function Process() {
         </WordReveal>
 
         <div ref={ref} className="mt-24 grid grid-cols-1 gap-8 md:grid-cols-6">
-          <svg className="pointer-events-none absolute left-0 top-0 hidden h-full w-full md:block" preserveAspectRatio="none" />
           {STEPS.map((s, i) => (
             <motion.div
               key={s}
@@ -665,7 +664,7 @@ function Process() {
               <div className="font-mono text-xs text-electric">0{i + 1}</div>
               <div className="mt-2 font-display text-2xl tracking-tight md:text-3xl">{s}</div>
               <div className="mt-4 h-px w-full bg-border">
-                <motion.div style={{ scaleX: useTransform(dash, (v) => 1 - v) }} className="h-full origin-left bg-electric" />
+                <motion.div style={{ scaleX: fill }} className="h-full origin-left bg-electric" />
               </div>
               {i < STEPS.length - 1 && (
                 <ArrowRight className="mt-4 h-4 w-4 text-bone/30" />
