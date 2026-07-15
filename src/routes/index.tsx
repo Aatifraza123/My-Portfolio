@@ -832,15 +832,8 @@ function FloatingInput({
   const [val, setVal] = useState("");
   const [focus, setFocus] = useState(false);
   const active = focus || val.length > 0;
-  const shared = {
-    name,
-    value: val,
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setVal(e.target.value),
-    onFocus: () => setFocus(true),
-    onBlur: () => setFocus(false),
-    className:
-      "w-full bg-transparent pb-3 pt-6 text-lg text-bone outline-none placeholder:text-transparent",
-  };
+  const commonClass =
+    "w-full bg-transparent pb-3 pt-6 text-lg text-bone outline-none placeholder:text-transparent";
   return (
     <label className="relative block border-b border-border transition-colors focus-within:border-electric">
       <span
@@ -850,7 +843,27 @@ function FloatingInput({
       >
         {label}
       </span>
-      {textarea ? <textarea rows={3} {...(shared as never)} /> : <input type={type} {...(shared as never)} />}
+      {textarea ? (
+        <textarea
+          name={name}
+          rows={3}
+          value={val}
+          onChange={(e) => setVal(e.target.value)}
+          onFocus={() => setFocus(true)}
+          onBlur={() => setFocus(false)}
+          className={commonClass}
+        />
+      ) : (
+        <input
+          name={name}
+          type={type}
+          value={val}
+          onChange={(e) => setVal(e.target.value)}
+          onFocus={() => setFocus(true)}
+          onBlur={() => setFocus(false)}
+          className={commonClass}
+        />
+      )}
     </label>
   );
 }
