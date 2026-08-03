@@ -5,12 +5,14 @@ import { ArrowUpRight, Download, Github, Linkedin, Mail, MapPin, Phone, ArrowDow
 
 import projectBoa from "@/assets/boa-project.png";
 import projectReturn from "@/assets/returnfilers-portfolio.png";
+import projectElection from "@/assets/general-election.png";
 import GridScan from "@/components/ui/GridScan";
 import { SplineScene } from "@/components/ui/splite";
 import { Spotlight } from "@/components/ui/spotlight";
 import { Card } from "@/components/ui/card";
 
 import { SkillPreviewVisual } from "@/components/portfolio/SkillPreviewVisuals";
+import { PixelTransition } from "@/components/portfolio/PixelTransition";
 import { GhostCursorEffect } from "@/components/portfolio/GhostCursorEffect";
 import { useLenis } from "@/components/portfolio/use-lenis";
 import { Text3DIntro } from "@/components/portfolio/Text3DIntro";
@@ -47,7 +49,9 @@ function PortfolioPage() {
         <About />
         <Experience />
         <Skills />
+        <PixelTransition mode="enter" />
         <Projects />
+        <PixelTransition mode="exit" />
         <Process />
         <Achievements />
         <Marquee />
@@ -219,7 +223,7 @@ function Hero() {
             transition={{ delay: 0.5, duration: 1 }}
             className="relative lg:col-span-6 h-[420px] sm:h-[520px] lg:h-[640px] w-full flex items-center justify-center bg-transparent"
           >
-            <SplineScene 
+            <SplineScene
               scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
               className="w-full h-full bg-transparent"
             />
@@ -558,172 +562,360 @@ const PROJECTS = [
       { k: "Retention", v: "82%" },
     ],
   },
+  {
+    n: "03",
+    name: "General Election",
+    tagline: "Real-time election tracking & constituency analytics platform.",
+    image: projectElection,
+    problem: "Voters, journalists, and analysts needed live constituency metrics, candidate insights, and real-time result aggregation during peak election traffic.",
+    solution: "Built a high-throughput MERN analytics dashboard featuring interactive constituency maps, live vote counters, and role-based data verification.",
+    features: ["Live vote counters", "Interactive maps", "Candidate search & analytics", "High concurrency REST APIs"],
+    stack: ["React", "Node", "MongoDB", "Express", "TailwindCSS"],
+    impact: [
+      { k: "Votes Tracked", v: "1M+" },
+      { k: "Constituencies", v: "543" },
+      { k: "Peak RPS", v: "2.5k" },
+    ],
+  },
 ];
 
 function Projects() {
-  return (
-    <section id="work" className="relative border-t border-border">
-      <div className="px-6 pt-32 md:px-12">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-16 flex items-baseline justify-between text-xs uppercase tracking-[0.25em] text-bone/40">
-            <span>[ 005 ] · Selected Work</span>
-            <span className="hidden md:inline">02 shipped · more in private</span>
-          </div>
-          <WordReveal as="h2" className="font-display text-[9vw] leading-[0.95] tracking-[-0.03em] md:text-[6vw]">
-            Work that shipped.
-          </WordReveal>
-          <WordReveal
-            as="h2"
-            className="font-display text-[9vw] italic leading-[0.95] tracking-[-0.03em] text-bone/50 md:text-[6vw]"
-            delay={0.1}
-          >
-            Users that stayed.
-          </WordReveal>
-        </div>
-      </div>
+  const targetRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: targetRef,
+    offset: ["start start", "end end"],
+  });
 
-      <div>
-        {PROJECTS.map((p) => (
-          <ProjectPinned key={p.n} project={p} />
-        ))}
+  // Calculate horizontal translation across the 3 project slides
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-67%"]);
+
+  return (
+    <section ref={targetRef} id="work" className="relative h-[320vh] bg-gradient-to-b from-white via-zinc-100 to-white text-zinc-950">
+      <div className="sticky top-0 flex h-screen w-full flex-col justify-between overflow-hidden px-6 py-8 md:px-12 md:py-10">
+        {/* Section Header */}
+        <div className="mx-auto w-full max-w-7xl">
+          <div className="flex items-baseline justify-between text-xs uppercase tracking-[0.25em] text-zinc-500 font-mono">
+            <span>[ 005 ] · Selected Work</span>
+            <span className="hidden md:inline">03 shipped · more in private</span>
+          </div>
+          <div className="mt-3 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h2 className="font-display text-3xl leading-[0.95] tracking-[-0.03em] text-zinc-950 md:text-5xl">
+                Work that shipped<span className="text-zinc-400 italic"> — Users that stayed.</span>
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        {/* Horizontal Track */}
+        <div className="my-auto w-full overflow-hidden py-2">
+          <motion.div style={{ x }} className="flex gap-8 md:gap-16 w-max pl-4 md:pl-12 pr-12 items-center">
+            {PROJECTS.map((p) => (
+              <ProjectCardHorizontal key={p.n} project={p} />
+            ))}
+          </motion.div>
+        </div>
+
       </div>
     </section>
   );
 }
 
-function ProjectPinned({ project }: { project: (typeof PROJECTS)[number] }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
-  const mask = useTransform(scrollYProgress, [0, 1], ["inset(0% 0% 0% 0%)", "inset(0% 0% 100% 0%)"]);
-  const contentY = useTransform(scrollYProgress, [0, 1], [0, -80]);
-
+function ProjectCardHorizontal({ project }: { project: (typeof PROJECTS)[number] }) {
   return (
-    <div ref={ref} className="relative h-auto py-12 md:py-0 md:h-[220vh] w-full">
-      <div className="md:sticky top-0 flex min-h-screen md:h-screen w-full items-center overflow-hidden border-t border-border px-6 md:px-12">
-        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 md:grid-cols-12">
-          {/* Image */}
-          <div className="md:col-span-7">
-            <motion.div style={{ clipPath: mask }} className="relative aspect-[16/10] w-full overflow-hidden rounded-lg bg-card">
-              <motion.img
-                src={project.image}
-                alt={project.name}
-                width={1600}
-                height={1000}
-                loading="lazy"
-                style={{ scale }}
-                className="h-full w-full object-cover"
-              />
-              <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-bone/10" />
-            </motion.div>
+    <div className="relative w-[85vw] md:w-[72vw] lg:w-[65vw] flex-shrink-0 rounded-3xl border border-zinc-200/80 bg-white/95 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] p-6 md:p-10 backdrop-blur-sm overflow-hidden group">
+      {/* Giant Watermark Project Number */}
+      <div className="pointer-events-none absolute -bottom-8 -right-4 font-display text-[18vw] font-bold leading-none text-zinc-900/[0.04] select-none z-0">
+        {project.n}
+      </div>
+
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+        {/* Left Column: Image */}
+        <div className="md:col-span-6">
+          <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-zinc-900 shadow-lg ring-1 ring-zinc-900/10">
+            <img
+              src={project.image}
+              alt={project.name}
+              width={1600}
+              height={1000}
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            />
+            <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/10" />
+          </div>
+        </div>
+
+        {/* Right Column: Project Info */}
+        <div className="md:col-span-6">
+          <div className="font-mono text-xs uppercase tracking-[0.25em] text-electric">
+            Project {project.n}
+          </div>
+          <h3 className="mt-2 font-display text-3xl leading-[0.95] tracking-tight text-zinc-950 md:text-5xl">
+            {project.name}
+          </h3>
+          <p className="mt-2 text-base text-zinc-600 leading-snug">{project.tagline}</p>
+
+          <div className="mt-5 space-y-2.5 text-xs md:text-sm text-zinc-700">
+            <div>
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-400 block mb-0.5">Problem</span>
+              {project.problem}
+            </div>
+            <div>
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-400 block mb-0.5">Solution</span>
+              {project.solution}
+            </div>
           </div>
 
-          {/* Content */}
-          <motion.div style={{ y: contentY }} className="md:col-span-5">
-            <div className="font-mono text-xs uppercase tracking-[0.25em] text-electric">
-              Project {project.n}
-            </div>
-            <h3 className="mt-3 font-display text-5xl leading-[0.95] tracking-tight md:text-6xl">
-              {project.name}
-            </h3>
-            <p className="mt-3 text-lg text-bone/60">{project.tagline}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {project.features.map((f) => (
+              <span key={f} className="inline-flex items-center gap-1 text-xs text-zinc-700 font-medium">
+                <Check className="h-3.5 w-3.5 text-electric" /> {f}
+              </span>
+            ))}
+          </div>
 
-            <div className="mt-8 grid grid-cols-1 gap-5 text-sm text-bone/70">
-              <div>
-                <div className="mb-1 text-[10px] uppercase tracking-[0.25em] text-bone/40">Problem</div>
-                {project.problem}
+          <div className="mt-4 flex flex-wrap gap-2">
+            {project.stack.map((s) => (
+              <span key={s} className="rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-1 text-[10px] uppercase tracking-widest text-zinc-800 font-mono">
+                {s}
+              </span>
+            ))}
+          </div>
+
+          <div className="mt-5 grid grid-cols-3 gap-3 border-t border-zinc-200 pt-4">
+            {project.impact.map((m) => (
+              <div key={m.k}>
+                <div className="font-display text-xl text-zinc-950 md:text-2xl font-normal">{m.v}</div>
+                <div className="mt-0.5 text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-mono">{m.k}</div>
               </div>
-              <div>
-                <div className="mb-1 text-[10px] uppercase tracking-[0.25em] text-bone/40">Solution</div>
-                {project.solution}
-              </div>
-            </div>
+            ))}
+          </div>
 
-            <div className="mt-6 flex flex-wrap gap-2">
-              {project.features.map((f) => (
-                <span key={f} className="inline-flex items-center gap-1 text-xs text-bone/60">
-                  <Check className="h-3 w-3 text-electric" /> {f}
-                </span>
-              ))}
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-2">
-              {project.stack.map((s) => (
-                <span key={s} className="rounded-full border border-border px-2.5 py-1 text-[10px] uppercase tracking-widest text-bone/60">
-                  {s}
-                </span>
-              ))}
-            </div>
-
-            <div className="mt-8 grid grid-cols-3 gap-4 border-t border-border pt-6">
-              {project.impact.map((m) => (
-                <div key={m.k}>
-                  <div className="font-display text-2xl text-bone md:text-3xl">{m.v}</div>
-                  <div className="mt-1 text-[10px] uppercase tracking-[0.25em] text-bone/40">{m.k}</div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 flex gap-3">
-              <Magnetic
-                as="a"
-                href="#"
-                className="inline-flex items-center gap-2 rounded-full bg-bone px-5 py-2.5 text-sm text-ink transition-colors hover:bg-electric"
-              >
-                Live Demo <ArrowUpRight className="h-4 w-4" />
-              </Magnetic>
-              <Magnetic
-                as="a"
-                href="#"
-                className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm text-bone hover:border-bone"
-              >
-                <Github className="h-4 w-4" /> GitHub
-              </Magnetic>
-            </div>
-          </motion.div>
+          <div className="mt-5 flex gap-3">
+            <Magnetic
+              as="a"
+              href="#"
+              className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-4 py-2 text-xs text-white transition-colors hover:bg-electric hover:text-black font-medium shadow-md"
+            >
+              Live Demo <ArrowUpRight className="h-3.5 w-3.5" />
+            </Magnetic>
+            <Magnetic
+              as="a"
+              href="#"
+              className="inline-flex items-center gap-2 rounded-full border border-zinc-300 bg-white px-4 py-2 text-xs text-zinc-900 transition-colors hover:border-zinc-950 font-medium shadow-sm"
+            >
+              <Github className="h-3.5 w-3.5" /> GitHub
+            </Magnetic>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-/* ============================================================== PROCESS */
+/* ============================================================== PROCESS (Circular Scroll Dial) */
 
-const STEPS = ["Requirement", "Design", "Development", "Testing", "Deployment", "Maintenance"];
+const PROCESS_STEPS = [
+  {
+    n: "01",
+    title: "Requirement Gathering",
+    sub: "Defining goals, user personas, tech scope & system architecture.",
+    detail: "Deep dive into client specifications, feature requirements, data flow modeling, and performance criteria before writing code.",
+  },
+  {
+    n: "02",
+    title: "System & DB Design",
+    sub: "Data modeling, schema design & API architecture.",
+    detail: "Architecting MongoDB / SQL schemas, defining RESTful endpoints, JWT security layers, and role-based access control (RBAC).",
+  },
+  {
+    n: "03",
+    title: "Core Development",
+    sub: "Writing clean, modular & scalable MERN / Java code.",
+    detail: "Implementing high-performance backend services, frontend state management with React, and fluid micro-animations.",
+  },
+  {
+    n: "04",
+    title: "API & Unit Testing",
+    sub: "Postman validation, edge-case testing & security audits.",
+    detail: "Thorough API integration testing, authentication security verification, edge-case handling, and latency optimizations.",
+  },
+  {
+    n: "05",
+    title: "Linux Deployment",
+    sub: "Server setup, Nginx reverse proxy, SSL & process control.",
+    detail: "Configuring Linux production servers, Nginx reverse proxying, SSL certificates, PM2 process management, and live domain setup.",
+  },
+  {
+    n: "06",
+    title: "Monitoring & Support",
+    sub: "Uptime tracking, automated backups & live scaling.",
+    detail: "Real-time log monitoring, database automated backups, performance tuning, and ongoing feature updates for 99.9% uptime.",
+  },
+];
 
 function Process() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.7", "end 0.3"] });
-  const fill = useTransform(scrollYProgress, [0, 1], [0, 1]);
-  return (
-    <section id="process" className="relative border-t border-border px-6 py-32 md:px-12">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-16 text-xs uppercase tracking-[0.25em] text-bone/40">[ 006 ] · Process</div>
-        <WordReveal as="h2" className="font-display text-[8vw] leading-[0.95] tracking-[-0.03em] md:text-[5vw]">
-          Idea → Production, in six moves.
-        </WordReveal>
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
 
-        <div ref={ref} className="mt-24 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-8">
-          {STEPS.map((s, i) => (
-            <motion.div
-              key={s}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.08 }}
-              className="relative"
-            >
-              <div className="font-mono text-xs text-electric">0{i + 1}</div>
-              <div className="mt-2 font-display text-2xl tracking-tight md:text-3xl">{s}</div>
-              <div className="mt-4 h-px w-full bg-border">
-                <motion.div style={{ scaleX: fill }} className="h-full origin-left bg-electric" />
-              </div>
-              {i < STEPS.length - 1 && (
-                <ArrowRight className="mt-4 h-4 w-4 text-bone/30" />
-              )}
-            </motion.div>
-          ))}
+  const [activeStep, setActiveStep] = useState(0);
+
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on("change", (latest) => {
+      const stepIndex = Math.min(
+        PROCESS_STEPS.length - 1,
+        Math.floor(latest * PROCESS_STEPS.length)
+      );
+      setActiveStep(stepIndex);
+    });
+    return () => unsubscribe();
+  }, [scrollYProgress]);
+
+  // Rotate ring based on scroll progress
+  const dialRotation = useTransform(scrollYProgress, [0, 1], [0, 360]);
+
+  return (
+    <section ref={containerRef} id="process" className="relative h-[320vh] border-t border-border">
+      <div className="sticky top-0 flex h-screen w-full flex-col justify-between overflow-hidden px-6 py-8 md:px-12 md:py-10">
+        
+        {/* Section Header */}
+        <div className="mx-auto w-full max-w-7xl">
+          <div className="flex items-baseline justify-between text-xs uppercase tracking-[0.25em] text-bone/40 font-mono">
+            <span>[ 006 ] · Process</span>
+            <span className="hidden md:inline">06 Moves · Idea → Production</span>
+          </div>
+          <WordReveal as="h2" className="mt-2 font-display text-3xl leading-[0.95] tracking-[-0.03em] md:text-5xl">
+            Idea → Production, in six moves.
+          </WordReveal>
         </div>
+
+        {/* Main Content Grid with Circular Dial & Fixed Position Step Card */}
+        <div className="my-auto mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 md:grid-cols-12">
+          
+          {/* Left Column: Circular Dial Wheel Visualizer */}
+          <div className="md:col-span-6 flex justify-center items-center">
+            <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex items-center justify-center">
+              
+              {/* Glowing Ambient Outer Ring */}
+              <div className="absolute inset-0 rounded-full border border-electric/20 bg-card/40 backdrop-blur-xl shadow-[0_0_60px_rgba(59,130,246,0.1)]" />
+
+              {/* Rotating Outer Perimeter Indicator */}
+              <motion.div
+                style={{ rotate: dialRotation }}
+                className="absolute inset-2 rounded-full border border-dashed border-electric/40 pointer-events-none"
+              />
+
+              {/* 6 Circular Perimeter Step Nodes */}
+              {PROCESS_STEPS.map((step, i) => {
+                const angleRad = (i * 60 - 90) * (Math.PI / 180);
+                const radius = 130;
+                const isActive = i === activeStep;
+
+                return (
+                  <motion.button
+                    key={step.n}
+                    onClick={() => setActiveStep(i)}
+                    animate={{
+                      scale: isActive ? 1.25 : 1,
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    style={{
+                      left: `calc(50% + ${Math.cos(angleRad) * radius}px - 20px)`,
+                      top: `calc(50% + ${Math.sin(angleRad) * radius}px - 20px)`,
+                    }}
+                    className={`absolute w-10 h-10 rounded-full flex items-center justify-center font-mono text-xs font-bold transition-all duration-300 z-20 ${
+                      isActive
+                        ? "bg-electric text-ink shadow-[0_0_20px_rgba(59,130,246,0.8)] ring-4 ring-electric/30"
+                        : i < activeStep
+                        ? "bg-bone/20 text-bone border border-bone/40"
+                        : "bg-background/80 text-bone/40 border border-border"
+                    }`}
+                  >
+                    {step.n}
+                  </motion.button>
+                );
+              })}
+
+              {/* Center Hub Visualizer */}
+              <div className="relative z-10 flex flex-col items-center justify-center text-center p-6 rounded-full w-36 h-36 sm:w-44 sm:h-44 bg-background border border-electric/30 shadow-inner">
+                <span className="font-mono text-xs tracking-widest text-electric uppercase">
+                  Step {PROCESS_STEPS[activeStep].n} / 06
+                </span>
+                <span className="mt-1 font-display text-lg sm:text-xl text-bone leading-tight font-medium">
+                  {PROCESS_STEPS[activeStep].title}
+                </span>
+                <div className="mt-2 flex gap-1">
+                  {PROCESS_STEPS.map((_, idx) => (
+                    <span
+                      key={idx}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        idx === activeStep ? "w-5 bg-electric" : "w-1.5 bg-bone/20"
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Fixed Position Step Details Card */}
+          <div className="md:col-span-6">
+            <div className="relative min-h-[300px] rounded-3xl border border-border bg-card/60 p-8 backdrop-blur-md shadow-2xl overflow-hidden">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeStep}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="space-y-6"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs uppercase tracking-[0.25em] text-electric">
+                      Phase {PROCESS_STEPS[activeStep].n}
+                    </span>
+                    <span className="rounded-full border border-electric/30 bg-electric/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-electric">
+                      Step {activeStep + 1} of 6
+                    </span>
+                  </div>
+
+                  <h3 className="font-display text-3xl md:text-4xl text-bone leading-tight">
+                    {PROCESS_STEPS[activeStep].title}
+                  </h3>
+
+                  <p className="font-mono text-sm text-electric/90 leading-relaxed">
+                    {PROCESS_STEPS[activeStep].sub}
+                  </p>
+
+                  <p className="text-base text-bone/70 leading-relaxed">
+                    {PROCESS_STEPS[activeStep].detail}
+                  </p>
+
+                  {/* Step Selector Navigation Buttons */}
+                  <div className="pt-4 border-t border-border flex flex-wrap gap-2">
+                    {PROCESS_STEPS.map((s, idx) => (
+                      <button
+                        key={s.n}
+                        onClick={() => setActiveStep(idx)}
+                        className={`px-3 py-1.5 rounded-full font-mono text-[10px] uppercase tracking-wider transition-all ${
+                          idx === activeStep
+                            ? "bg-electric text-ink font-bold"
+                            : "bg-background border border-border text-bone/50 hover:text-bone hover:border-bone/40"
+                        }`}
+                      >
+                        0{idx + 1} {s.title.split(" ")[0]}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
   );
@@ -888,9 +1080,8 @@ function FloatingInput({
   return (
     <label className="relative block border-b border-border transition-colors focus-within:border-electric">
       <span
-        className={`pointer-events-none absolute left-0 transition-all duration-300 ${
-          active ? "top-0 text-[10px] uppercase tracking-[0.25em] text-electric" : "top-6 text-lg text-bone/40"
-        }`}
+        className={`pointer-events-none absolute left-0 transition-all duration-300 ${active ? "top-0 text-[10px] uppercase tracking-[0.25em] text-electric" : "top-6 text-lg text-bone/40"
+          }`}
       >
         {label}
       </span>

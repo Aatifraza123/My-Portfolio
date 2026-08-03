@@ -196,12 +196,5 @@ export function CursorFollower() {
 }
 
 export function ScrollProgress() {
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 120, damping: 20 });
-  return (
-    <motion.div
-      style={{ scaleX }}
-      className="fixed left-0 top-0 z-[90] h-[2px] w-full origin-left bg-electric"
-    />
-  );
+  return null;
 }
