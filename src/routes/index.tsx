@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, Download, Github, Linkedin, Mail, MapPin, Phone, ArrowDown, ArrowRight, Check } from "lucide-react";
 
@@ -990,6 +990,8 @@ function Marquee() {
 
 function Contact() {
   const [sent, setSent] = useState(false);
+  const [result, setResult] = useState("");
+  const [clearSignal, setClearSignal] = useState(0);
   return (
     <section id="contact" className="relative border-t border-border px-6 py-32 md:px-12">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-16 md:grid-cols-12">
@@ -1026,17 +1028,30 @@ function Contact() {
         </div>
 
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e: FormEvent<HTMLFormElement>) => {
             e.preventDefault();
-            setSent(true);
+            const form = e.currentTarget;
+            const formData = new FormData(form);
+            formData.append("access_key", "d3c0503d-f89b-4e8a-a1d6-e59f5a0611d0");
+
+            const response = await fetch("https://api.web3forms.com/submit", {
+              method: "POST",
+              body: formData,
+            });
+            const data = await response.json();
+            setSent(data.success);
+            setResult(data.success ? "Success! Your message has been sent." : "Error sending message. Please try again.");
+            if (data.success) {
+              setClearSignal((prev) => prev + 1);
+            }
           }}
           className="md:col-span-6"
         >
           <div className="flex flex-col gap-8">
-            <FloatingInput label="Your name" name="name" />
-            <FloatingInput label="Email address" name="email" type="email" />
-            <FloatingInput label="Company (optional)" name="company" />
-            <FloatingInput label="Tell me about the project" name="message" textarea />
+            <FloatingInput label="Your name" name="name" clearSignal={clearSignal} />
+            <FloatingInput label="Email address" name="email" type="email" clearSignal={clearSignal} />
+            <FloatingInput label="Company (optional)" name="company" clearSignal={clearSignal} />
+            <FloatingInput label="Tell me about the project" name="message" textarea clearSignal={clearSignal} />
 
             <Magnetic
               as="button"
@@ -1054,6 +1069,9 @@ function Contact() {
                 )}
               </AnimatePresence>
             </Magnetic>
+            {result && (
+              <p className="mt-4 text-sm text-bone/70">{result}</p>
+            )}
           </div>
         </form>
       </div>
@@ -1066,17 +1084,26 @@ function FloatingInput({
   name,
   type = "text",
   textarea = false,
+  clearSignal,
 }: {
   label: string;
   name: string;
   type?: string;
   textarea?: boolean;
+  clearSignal?: number;
 }) {
   const [val, setVal] = useState("");
   const [focus, setFocus] = useState(false);
   const active = focus || val.length > 0;
   const commonClass =
     "w-full bg-transparent pb-3 pt-6 text-lg text-bone outline-none placeholder:text-transparent";
+
+  useEffect(() => {
+    if (clearSignal !== undefined) {
+      setVal("");
+    }
+  }, [clearSignal]);
+
   return (
     <label className="relative block border-b border-border transition-colors focus-within:border-electric">
       <span
